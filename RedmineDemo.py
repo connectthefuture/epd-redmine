@@ -63,13 +63,10 @@ def isIssueToMe(issue):
     return hasattr(issue, 'assigned_to') and issue.assigned_to.id == USER_ID_GAEL
 
 def listIdsForStatus(redmine, projectName, statusId):
-    issues = redmine.issue.filter(project_id=projectName, status_id=statusId)
+    return redmine.issue.filter(project_id=projectName, status_id=statusId)
 
-    issue_ids = []
-    for issue in issues:
-        issue_ids.append(str(issue.id))
-
-    return issue_ids
+def listIdsForQuery(redmine, projectName, queryId):
+    return redmine.issue.filter(project_id=projectName, query_id=queryId)
 
 def transferToEpd(epd, image):
     # display image on the panel
@@ -110,26 +107,28 @@ def drawLines(draw, headerLineHeight):
 def drawMultiColumnContent(draw, headerLineHeight, xPos, issues):
     if len(issues) == 0:
         return
-    textFirstLine = headerLineHeight + 3
-    textSize = draw.textsize(issues[0], font=fontIssues)
+    currentY = headerLineHeight + 3
+    textSize = draw.textsize(issues[0].subject, font=fontIssues)
+    currentX = xPos
 
-    columnLength = len(issues) / 2
-    drawColumnContent(draw, issues[:columnLength], textFirstLine, textSize[1], xPos)
-    drawColumnContent(draw, issues[columnLength:], textFirstLine, textSize[1], xPos + 40)
-
-
-def drawColumnContent(draw, issues, heightToWrite, textHeight, xPos):
     for issue in issues:
-        draw.text((xPos, heightToWrite), issue, font=fontIssues, fill=BLACK)
-        heightToWrite += textHeight + 2
-
+        draw.text((currentX, currentY), str(issue.id), font=fontIssues, fill=BLACK)
+        currentX += 40
+        if (currentX == xPos + 80):
+            currentY += textSize[1] + 5 
+            currentX = xPos
 
 def drawBottomText(draw, issuesNew, issuesWait):
     draw.text((2, 145), formatIssues('New', issuesNew), font=fontIssues, fill=BLACK)
     draw.text((2, 160), formatIssues('Wait', issuesWait), font=fontIssues, fill=BLACK)
 
 
-def formatIssues(label, issueIds):
+def formatIssues(label, issues):
+    issueIds = []
+    for issue in issues:
+        issueIds.append(str(issue.id))
+
+
     stringBuilder = label + ' (' + str(len(issueIds)) + '): ' + ', '.join(issueIds)
     wrappedText = textwrap.wrap(stringBuilder, 40)
     return re.sub(r',$', '...',wrappedText[0])
@@ -164,8 +163,9 @@ def main(args):
 
     drawMultiColumnContent(draw, headerLineHeight, 5, listIdsForStatus(redmine, args[1], STATUS_ID_ASSIGNED))
     drawMultiColumnContent(draw, headerLineHeight, 95, listIdsForStatus(redmine, args[1], STATUS_ID_IN_PROGRESS))
-    drawMultiColumnContent(draw, headerLineHeight, 185, listIdsForStatus(redmine, args[1], STATUS_ID_RFV) + 
-        listIdsForStatus(redmine, args[1], STATUS_ID_RID) + listIdsForStatus(redmine, args[1], STATUS_ID_RIT))
+    drawMultiColumnContent(draw, headerLineHeight, 185, 
+        listIdsForQuery(redmine, args[1], 69)
+    )
 
     transferToEpd(epd, image)
 
