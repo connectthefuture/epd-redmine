@@ -22,6 +22,8 @@
 
 from redmine import Redmine
 import RedmineCredential
+import textwrap
+import re
 from PIL import Image
 from PIL import ImageDraw, ImageFont
 from EPD import EPD
@@ -38,7 +40,8 @@ STATUS_ID_ASSIGNED = 12
 
 WHITE = 1
 BLACK = 0
-fontTitles = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf",12)
+fontTitles = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf",12)
+fontIssues = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf",11)
 
 
 def extractUsableStatuses(redmine):
@@ -64,17 +67,17 @@ def listIdsForStatus(redmine, projectName, statusId):
 
     issue_ids = []
     for issue in issues:
-                issue_ids.append(str(issue.id))
-    
-    usableStatuses = extractUsableStatuses(redmine)
-    return usableStatuses[statusId] + ' (' + str(len(issues)) + '): ' + ', '.join(issue_ids)
+        issue_ids.append(str(issue.id))
 
-def draw(epd):
-        # initially set all white background
-    image = Image.new('1', epd.size, WHITE)
+    return issue_ids
 
-    # prepare for drawing
-    draw = ImageDraw.Draw(image)
+def transferToEpd(epd, image):
+    # display image on the panel
+    epd.clear()
+    epd.display(image)
+    epd.update()
+
+def drawDots(draw):
 
     # three pixels in bottom left corner
     draw.point((0, 175), fill=BLACK)
@@ -85,28 +88,55 @@ def draw(epd):
     draw.point((262, 175), fill=BLACK)
     draw.point((263, 174), fill=BLACK)
 
-    # lines
+def createImage(epd):
+    # initially set all white background
+    return Image.new('1', epd.size, WHITE)
+
+def drawColumnTitles(draw):
+    draw.text((10, 1), 'Assigned', font=fontTitles, fill=BLACK)
+    draw.text((91, 1), 'In progress', font=fontTitles, fill=BLACK)
+    draw.text((186, 1), 'Ready ...', font=fontTitles, fill=BLACK)
+    return draw.textsize('Assigned', font=fontTitles)
+
+def drawLines(draw, headerLineHeight):
     #headers
-    draw.line([(0,20),(263,20)], fill=BLACK)
+    draw.line([(0,headerLineHeight),(263, headerLineHeight)], fill=BLACK)
+
     #columns
-    draw.line([(88,0),(88,130)], fill=BLACK)
-    draw.line([(176,0),(176,130)], fill=BLACK)
+    draw.line([(88,0),(88,140)], fill=BLACK)
+    draw.line([(176,0),(176,140)], fill=BLACK)
 
 
-    # column title: text
-    draw.text((10, 2), 'Assigned', font=fontTitle, fill=BLACK)
-    draw.text((93, 2), 'In progress', font=fontTitle, fill=BLACK)
-    draw.text((186, 2), 'Ready ...', font=fontTitle, fill=BLACK)
+def drawMultiColumnContent(draw, headerLineHeight, xPos, issues):
+    if len(issues) == 0:
+        return
+    textFirstLine = headerLineHeight + 3
+    textSize = draw.textsize(issues[0], font=fontIssues)
+
+    columnLength = len(issues) / 2
+    drawColumnContent(draw, issues[:columnLength], textFirstLine, textSize[1], xPos)
+    drawColumnContent(draw, issues[columnLength:], textFirstLine, textSize[1], xPos + 40)
 
 
-    # display image on the panel
-    epd.display(image)
-    epd.update()
+def drawColumnContent(draw, issues, heightToWrite, textHeight, xPos):
+    for issue in issues:
+        draw.text((xPos, heightToWrite), issue, font=fontIssues, fill=BLACK)
+        heightToWrite += textHeight + 2
 
+
+def drawBottomText(draw, issuesNew, issuesWait):
+    draw.text((2, 145), formatIssues('New', issuesNew), font=fontIssues, fill=BLACK)
+    draw.text((2, 160), formatIssues('Wait', issuesWait), font=fontIssues, fill=BLACK)
+
+
+def formatIssues(label, issueIds):
+    stringBuilder = label + ' (' + str(len(issueIds)) + '): ' + ', '.join(issueIds)
+    wrappedText = textwrap.wrap(stringBuilder, 40)
+    return re.sub(r',$', '...',wrappedText[0])
 
 def main(args):
     if len(args) != 2:
-        sys.stderr.write('Please provide project name')
+        sys.stderr.write("Please provide project name !\n")
         return 1
     
     redmine = Redmine(RedmineCredential.host, key=RedmineCredential.key, requests={'verify': RedmineCredential.request_verify})
@@ -114,26 +144,32 @@ def main(args):
     epd = EPD()
 
     print('panel = {p:s} {w:d} x {h:d}  version={v:s} COG={g:d}'.format(p=epd.panel, w=epd.width, h=epd.height, v=epd.version, g=epd.cog))
-    epd.clear()
     
-    print listIdsForStatus(redmine, args[1], STATUS_ID_NEW);
-    print
-    print listIdsForStatus(redmine, args[1], STATUS_ID_WAIT);
-    print
+    image = createImage(epd)
+    # prepare for drawing
+    draw = ImageDraw.Draw(image)
 
-    print listIdsForStatus(redmine, args[1], STATUS_ID_ASSIGNED);
-    print
-    print listIdsForStatus(redmine, args[1], STATUS_ID_RFV);
-    print
+    drawDots(draw)
 
-    print listIdsForStatus(redmine, args[1], STATUS_ID_RID);
-    print
+    # column title: text
+    columnsTitleSize = drawColumnTitles(draw)
+    headerLineHeight = columnsTitleSize[1] + 2
 
-    print listIdsForStatus(redmine, args[1], STATUS_ID_RIT);
-    print
+    drawLines(draw, headerLineHeight)
 
-    print listIdsForStatus(redmine, args[1], STATUS_ID_IN_PROGRESS);
+    issuesNew = listIdsForStatus(redmine, args[1], STATUS_ID_NEW);
+    issuesWait = listIdsForStatus(redmine, args[1], STATUS_ID_WAIT);
 
+    drawBottomText(draw, issuesNew, issuesWait)
+
+    drawMultiColumnContent(draw, headerLineHeight, 5, listIdsForStatus(redmine, args[1], STATUS_ID_ASSIGNED))
+    drawMultiColumnContent(draw, headerLineHeight, 95, listIdsForStatus(redmine, args[1], STATUS_ID_IN_PROGRESS))
+    drawMultiColumnContent(draw, headerLineHeight, 185, listIdsForStatus(redmine, args[1], STATUS_ID_RFV) + 
+        listIdsForStatus(redmine, args[1], STATUS_ID_RID) + listIdsForStatus(redmine, args[1], STATUS_ID_RIT))
+
+    transferToEpd(epd, image)
+
+    
     
     return 0
 
