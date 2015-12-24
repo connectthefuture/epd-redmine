@@ -22,7 +22,9 @@
 
 from redmine import Redmine
 import RedmineCredential
-#from EPD import EPD
+from PIL import Image
+from PIL import ImageDraw, ImageFont
+from EPD import EPD
 
 USER_ID_GAEL = 69
 
@@ -33,6 +35,10 @@ STATUS_ID_RID = 9
 STATUS_ID_RIT = 3
 STATUS_ID_RFV = 10
 STATUS_ID_ASSIGNED = 12
+
+WHITE = 1
+BLACK = 0
+fontTitles = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf",12)
 
 
 def extractUsableStatuses(redmine):
@@ -63,6 +69,40 @@ def listIdsForStatus(redmine, projectName, statusId):
     usableStatuses = extractUsableStatuses(redmine)
     return usableStatuses[statusId] + ' (' + str(len(issues)) + '): ' + ', '.join(issue_ids)
 
+def draw(epd):
+        # initially set all white background
+    image = Image.new('1', epd.size, WHITE)
+
+    # prepare for drawing
+    draw = ImageDraw.Draw(image)
+
+    # three pixels in bottom left corner
+    draw.point((0, 175), fill=BLACK)
+    draw.point((1, 175), fill=BLACK)
+    draw.point((0, 174), fill=BLACK)
+    # three pixels in bottom right corner
+    draw.point((263, 175), fill=BLACK)
+    draw.point((262, 175), fill=BLACK)
+    draw.point((263, 174), fill=BLACK)
+
+    # lines
+    #headers
+    draw.line([(0,20),(263,20)], fill=BLACK)
+    #columns
+    draw.line([(88,0),(88,130)], fill=BLACK)
+    draw.line([(176,0),(176,130)], fill=BLACK)
+
+
+    # column title: text
+    draw.text((10, 2), 'Assigned', font=fontTitle, fill=BLACK)
+    draw.text((93, 2), 'In progress', font=fontTitle, fill=BLACK)
+    draw.text((186, 2), 'Ready ...', font=fontTitle, fill=BLACK)
+
+
+    # display image on the panel
+    epd.display(image)
+    epd.update()
+
 
 def main(args):
     if len(args) != 2:
@@ -71,10 +111,10 @@ def main(args):
     
     redmine = Redmine(RedmineCredential.host, key=RedmineCredential.key, requests={'verify': RedmineCredential.request_verify})
 
-#   epd = EPD()
+    epd = EPD()
 
-#   print('panel = {p:s} {w:d} x {h:d}  version={v:s} COG={g:d}'.format(p=epd.panel, w=epd.width, h=epd.height, v=epd.version, g=epd.cog))
-#    epd.clear()
+    print('panel = {p:s} {w:d} x {h:d}  version={v:s} COG={g:d}'.format(p=epd.panel, w=epd.width, h=epd.height, v=epd.version, g=epd.cog))
+    epd.clear()
     
     print listIdsForStatus(redmine, args[1], STATUS_ID_NEW);
     print
