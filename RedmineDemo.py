@@ -42,6 +42,7 @@ WHITE = 1
 BLACK = 0
 fontTitles = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf",12)
 fontIssues = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf",11)
+fontBoldIssues = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf",11)
 
 
 def extractUsableStatuses(redmine):
@@ -112,7 +113,11 @@ def drawMultiColumnContent(draw, headerLineHeight, xPos, issues):
     currentX = xPos
 
     for issue in issues:
-        draw.text((currentX, currentY), str(issue.id), font=fontIssues, fill=BLACK)
+        if isIssueToMe(issue):
+            draw.text((currentX, currentY), str(issue.id), font=fontBoldIssues, fill=BLACK)
+
+        else:
+            draw.text((currentX, currentY), str(issue.id), font=fontIssues, fill=BLACK)
         currentX += 40
         if (currentX == xPos + 80):
             currentY += textSize[1] + 5 
