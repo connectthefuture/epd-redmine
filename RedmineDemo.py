@@ -54,22 +54,6 @@ fontBoldIssues = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSeri
 issues = []
 
 
-def extractUsableStatuses(redmine):
-    hashStatuses = {}
-    # {1: u'New', 2: u'In Progress', 3: u'Ready in test', 4: u'Waiting feedback', 5: u'Closed', 6: u'Rejected',
-    # 9: u'Ready in dev',10: u'Ready for validation', 11: u'Go for prod', 12: u'Assigned', 13: u'On Stable', 14: u'To Rollback'}
-
-    allowed_statuses = ['New', 'In Progress', 'Ready in dev', 'Ready in test', 'Ready for validation', 'Waiting feedback', 'Assigned']
-
-    issues_statuses = redmine.issue_status.all()
-
-    for issue_status in issues_statuses:
-                if issue_status.name in allowed_statuses:
-                                hashStatuses[issue_status.id] = issue_status.name
-
-    return hashStatuses
-
-
 def isIssueToMe(issue):
     return hasattr(issue, 'assigned_to') and issue.assigned_to.id == RedmineCredential.USER_ID
 
@@ -80,6 +64,7 @@ def listIdsForStatus(redmine, projectName, statusId):
         issues = redmine.issue.filter(project_id=projectName)
 
     return [issue for issue in issues if issue.status.id == statusId]
+
 
 def transferToEpd(epd, image):
     # display image on the panel
@@ -137,6 +122,7 @@ def drawLines(draw, headerLineHeight):
 def drawNbIssues(draw, currentX, currentY, nbIssues):
     draw.text((currentX, currentY), '(' + str(nbIssues) + ')', font=fontItalicIssues, fill=BLACK)
 
+
 def drawMultiColumnContent(draw, headerLineHeight, xPos, issues):
     nbIssues = len(issues)
     currentX = xPos
@@ -145,7 +131,6 @@ def drawMultiColumnContent(draw, headerLineHeight, xPos, issues):
     if nbIssues == 0:
         drawNbIssues(draw, currentX, currentY, nbIssues)
         return
-
 
     textSize = draw.textsize(issues[0].subject, font=fontIssues)
 
@@ -164,7 +149,6 @@ def drawMultiColumnContent(draw, headerLineHeight, xPos, issues):
             currentX = xPos
 
     drawNbIssues(draw, currentX, currentY, nbIssues)
-
 
 
 def drawBottomText(draw, issuesNew, issuesWait):
@@ -187,6 +171,8 @@ def main(args):
         sys.stderr.write("Please provide project name !\n")
         return 1
 
+    projectName = args[1]
+
     redmine = Redmine(RedmineCredential.host, key=RedmineCredential.key,
         requests={'verify': RedmineCredential.request_verify})
 
@@ -207,13 +193,14 @@ def main(args):
 
     drawLines(draw, headerLineHeight)
 
-    drawMultiColumnContent(draw, headerLineHeight, 5, listIdsForStatus(redmine, args[1], STATUS_ID_ASSIGNED))
-    drawMultiColumnContent(draw, headerLineHeight, 95, listIdsForStatus(redmine, args[1], STATUS_ID_IN_PROGRESS))
-    drawMultiColumnContent(draw, headerLineHeight, 185, listIdsForStatus(redmine, args[1], STATUS_ID_RID))
+    drawMultiColumnContent(draw, headerLineHeight, 5, listIdsForStatus(redmine, projectName, STATUS_ID_ASSIGNED))
+    drawMultiColumnContent(draw, headerLineHeight, 95, listIdsForStatus(redmine, projectName, STATUS_ID_IN_PROGRESS))
+    drawMultiColumnContent(draw, headerLineHeight, 185, listIdsForStatus(redmine, projectName, STATUS_ID_RID))
 
-    drawMultiColumnContent(draw, SCREEN_SIZE_Y / 2 + headerLineHeight, 5, listIdsForStatus(redmine, args[1], STATUS_ID_RIT))
-    drawMultiColumnContent(draw, SCREEN_SIZE_Y / 2 + headerLineHeight, 95, listIdsForStatus(redmine, args[1], STATUS_ID_WAIT))
-    drawMultiColumnContent(draw, SCREEN_SIZE_Y / 2 + headerLineHeight, 185, listIdsForStatus(redmine, args[1], STATUS_ID_NEW))
+    headerLineHeightSecondScreen = SCREEN_SIZE_Y / 2 + headerLineHeight
+    drawMultiColumnContent(draw, headerLineHeightSecondScreen, 5, listIdsForStatus(redmine, projectName, STATUS_ID_RIT))
+    drawMultiColumnContent(draw, headerLineHeightSecondScreen, 95, listIdsForStatus(redmine, projectName, STATUS_ID_WAIT))
+    drawMultiColumnContent(draw, headerLineHeightSecondScreen, 185, listIdsForStatus(redmine, projectName, STATUS_ID_NEW))
 
 #    transferToEpd(epd, image)
     transferToScreen(image)
