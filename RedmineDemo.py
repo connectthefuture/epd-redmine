@@ -69,7 +69,7 @@ def isIssueToMe(issue):
 def listIdsForStatus(redmine, projectName, statusId):
     global issues
     if not issues:
-        issues = redmine.issue.filter(project_id=projectName)
+        issues = redmine.issue.filter(project_id=projectName, sort='updated_on:desc')
 
     return [issue for issue in issues if issue.status.id == statusId]
 
