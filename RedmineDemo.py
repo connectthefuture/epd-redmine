@@ -25,6 +25,7 @@ import sys
 import RedmineCredential
 import textwrap
 import re
+import time
 from PIL import Image
 from PIL import ImageDraw, ImageFont
 
@@ -127,6 +128,14 @@ def drawLines(draw, headerLineHeight):
     draw.line([(176, BLOCK_2_TOP), (176, SCREEN_SIZE_Y)], fill=BLACK)
 
 
+def drawClock(draw):
+    draw.text(
+        (SCREEN_SIZE_Y / 2 + 15, BLOCK_1_BOTTOM - 5),
+        time.strftime('%H:%M:%S'),
+        font=fontItalicIssues,
+        fill='grey')
+
+
 def drawNbIssues(draw, currentX, currentY, nbIssues):
     draw.text((currentX, currentY), '(' + str(nbIssues) + ')', font=fontItalicIssues, fill=BLACK)
 
@@ -201,6 +210,8 @@ def main(args):
     headerLineHeight = columnsTitleSize[1] + 2
 
     drawLines(draw, headerLineHeight)
+
+    drawClock(draw)
 
     drawMultiColumnContent(draw, headerLineHeight, 5, listIdsForStatus(redmine, projectName, STATUS_ID_ASSIGNED))
     drawMultiColumnContent(draw, headerLineHeight, 95, listIdsForStatus(redmine, projectName, STATUS_ID_IN_PROGRESS))
