@@ -28,8 +28,6 @@ from PIL import Image
 from PIL import ImageDraw, ImageFont
 #from EPD import EPD
 
-USER_ID_GAEL = 69
-
 STATUS_ID_NEW = 1
 STATUS_ID_WAIT = 4
 STATUS_ID_IN_PROGRESS = 2
@@ -73,7 +71,7 @@ def extractUsableStatuses(redmine):
 
 
 def isIssueToMe(issue):
-    return hasattr(issue, 'assigned_to') and issue.assigned_to.id == USER_ID_GAEL
+    return hasattr(issue, 'assigned_to') and issue.assigned_to.id == RedmineCredential.USER_ID
 
 
 def listIdsForStatus(redmine, projectName, statusId):
