@@ -2,19 +2,19 @@
 # -*- coding: utf-8 -*-
 #
 #  redmine.py
-#  
+#
 #  Copyright 2015 LGnap <lgnap@desktop.helpcomputer.ovh>
-#  
+#
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation; either version 2 of the License, or
 #  (at your option) any later version.
-#  
+#
 #  This program is distributed in the hope that it will be useful,
 #  but WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #  GNU General Public License for more details.
-#  
+#
 #  You should have received a copy of the GNU General Public License
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
@@ -52,28 +52,33 @@ def extractUsableStatuses(redmine):
 
     allowed_statuses = ['New', 'In Progress', 'Ready in dev', 'Ready in test', 'Ready for validation', 'Waiting feedback', 'Assigned']
 
-    issues_statuses = redmine.issue_status.all();
-    
+    issues_statuses = redmine.issue_status.all()
+
     for issue_status in issues_statuses:
                 if issue_status.name in allowed_statuses:
                                 hashStatuses[issue_status.id] = issue_status.name
-    
+
     return hashStatuses
 
-def isIssueToMe(issue): 
+
+def isIssueToMe(issue):
     return hasattr(issue, 'assigned_to') and issue.assigned_to.id == USER_ID_GAEL
+
 
 def listIdsForStatus(redmine, projectName, statusId):
     return redmine.issue.filter(project_id=projectName, status_id=statusId)
 
+
 def listIdsForQuery(redmine, projectName, queryId):
     return redmine.issue.filter(project_id=projectName, query_id=queryId)
+
 
 def transferToEpd(epd, image):
     # display image on the panel
     epd.clear()
     epd.display(image)
     epd.update()
+
 
 def drawDots(draw):
 
@@ -86,9 +91,11 @@ def drawDots(draw):
     draw.point((262, 175), fill=BLACK)
     draw.point((263, 174), fill=BLACK)
 
+
 def createImage(epd):
     # initially set all white background
     return Image.new('1', epd.size, WHITE)
+
 
 def drawColumnTitles(draw):
     draw.text((10, 1), 'Assigned', font=fontTitles, fill=BLACK)
@@ -96,13 +103,14 @@ def drawColumnTitles(draw):
     draw.text((186, 1), 'Ready ...', font=fontTitles, fill=BLACK)
     return draw.textsize('Assigned', font=fontTitles)
 
+
 def drawLines(draw, headerLineHeight):
     #headers
-    draw.line([(0,headerLineHeight),(263, headerLineHeight)], fill=BLACK)
+    draw.line([(0, headerLineHeight), (263, headerLineHeight)], fill=BLACK)
 
     #columns
-    draw.line([(88,0),(88,140)], fill=BLACK)
-    draw.line([(176,0),(176,140)], fill=BLACK)
+    draw.line([(88, 0), (88, 140)], fill=BLACK)
+    draw.line([(176, 0), (176, 140)], fill=BLACK)
 
 
 def drawMultiColumnContent(draw, headerLineHeight, xPos, issues):
@@ -120,8 +128,9 @@ def drawMultiColumnContent(draw, headerLineHeight, xPos, issues):
             draw.text((currentX, currentY), str(issue.id), font=fontIssues, fill=BLACK)
         currentX += 40
         if (currentX == xPos + 80):
-            currentY += textSize[1] + 5 
+            currentY += textSize[1] + 5
             currentX = xPos
+
 
 def drawBottomText(draw, issuesNew, issuesWait):
     draw.text((2, 145), formatIssues('New', issuesNew), font=fontIssues, fill=BLACK)
@@ -133,22 +142,22 @@ def formatIssues(label, issues):
     for issue in issues:
         issueIds.append(str(issue.id))
 
-
     stringBuilder = label + ' (' + str(len(issueIds)) + '): ' + ', '.join(issueIds)
     wrappedText = textwrap.wrap(stringBuilder, 40)
-    return re.sub(r',$', '...',wrappedText[0])
+    return re.sub(r',$', '...', wrappedText[0])
+
 
 def main(args):
     if len(args) != 2:
         sys.stderr.write("Please provide project name !\n")
         return 1
-    
+
     redmine = Redmine(RedmineCredential.host, key=RedmineCredential.key, requests={'verify': RedmineCredential.request_verify})
 
     epd = EPD()
 
     print('panel = {p:s} {w:d} x {h:d}  version={v:s} COG={g:d}'.format(p=epd.panel, w=epd.width, h=epd.height, v=epd.version, g=epd.cog))
-    
+
     image = createImage(epd)
     # prepare for drawing
     draw = ImageDraw.Draw(image)
@@ -161,24 +170,21 @@ def main(args):
 
     drawLines(draw, headerLineHeight)
 
-    issuesNew = listIdsForStatus(redmine, args[1], STATUS_ID_NEW);
-    issuesWait = listIdsForStatus(redmine, args[1], STATUS_ID_WAIT);
+    issuesNew = listIdsForStatus(redmine, args[1], STATUS_ID_NEW)
+    issuesWait = listIdsForStatus(redmine, args[1], STATUS_ID_WAIT)
 
     drawBottomText(draw, issuesNew, issuesWait)
 
     drawMultiColumnContent(draw, headerLineHeight, 5, listIdsForStatus(redmine, args[1], STATUS_ID_ASSIGNED))
     drawMultiColumnContent(draw, headerLineHeight, 95, listIdsForStatus(redmine, args[1], STATUS_ID_IN_PROGRESS))
-    drawMultiColumnContent(draw, headerLineHeight, 185, 
+    drawMultiColumnContent(draw, headerLineHeight, 185,
         listIdsForQuery(redmine, args[1], 69)
     )
 
     transferToEpd(epd, image)
 
-    
-    
     return 0
 
 if __name__ == '__main__':
     import sys
     sys.exit(main(sys.argv))
-
