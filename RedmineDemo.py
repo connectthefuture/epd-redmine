@@ -192,14 +192,13 @@ def main(args):
 
     drawLines(draw, headerLineHeight)
 
-    issuesNew = listIdsForStatus(redmine, args[1], STATUS_ID_NEW)
-    issuesWait = listIdsForStatus(redmine, args[1], STATUS_ID_WAIT)
-
-    drawBottomText(draw, issuesNew, issuesWait)
-
     drawMultiColumnContent(draw, headerLineHeight, 5, listIdsForStatus(redmine, args[1], STATUS_ID_ASSIGNED))
     drawMultiColumnContent(draw, headerLineHeight, 95, listIdsForStatus(redmine, args[1], STATUS_ID_IN_PROGRESS))
     drawMultiColumnContent(draw, headerLineHeight, 185, listIdsForStatus(redmine, args[1], STATUS_ID_RID))
+
+    drawMultiColumnContent(draw, SCREEN_SIZE_Y / 2 + headerLineHeight, 5, listIdsForStatus(redmine, args[1], STATUS_ID_RIT))
+    drawMultiColumnContent(draw, SCREEN_SIZE_Y / 2 + headerLineHeight, 95, listIdsForStatus(redmine, args[1], STATUS_ID_WAIT))
+    drawMultiColumnContent(draw, SCREEN_SIZE_Y / 2 + headerLineHeight, 185, listIdsForStatus(redmine, args[1], STATUS_ID_NEW))
 
 #    transferToEpd(epd, image)
     transferToScreen(image)
