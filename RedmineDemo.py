@@ -46,12 +46,15 @@ SCREEN_SIZE_Y = 176 - 1
 
 BLOCK_1_BOTTOM = SCREEN_SIZE_Y / 2 - 10
 BLOCK_2_TOP = SCREEN_SIZE_Y / 2
+BLOCK_NB_ISSUES_MAX = 7
 
 
 fontTitles = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf", 12)
 fontIssues = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf", 11)
-fontBoldIssues = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf", 11)
+fontItalicIssues = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Oblique.ttf", 11)
+fontBoldIssues = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSansCondensed-Bold.ttf", 11)
 issues = []
+
 
 def extractUsableStatuses(redmine):
     hashStatuses = {}
@@ -133,23 +136,37 @@ def drawLines(draw, headerLineHeight):
     draw.line([(176, BLOCK_2_TOP), (176, SCREEN_SIZE_Y)], fill=BLACK)
 
 
-def drawMultiColumnContent(draw, headerLineHeight, xPos, issues):
-    if len(issues) == 0:
-        return
-    currentY = headerLineHeight + 3
-    textSize = draw.textsize(issues[0].subject, font=fontIssues)
-    currentX = xPos
+def drawNbIssues(draw, currentX, currentY, nbIssues):
+    draw.text((currentX, currentY), '(' + str(nbIssues) + ')', font=fontItalicIssues, fill=BLACK)
 
+def drawMultiColumnContent(draw, headerLineHeight, xPos, issues):
+    nbIssues = len(issues)
+    currentX = xPos
+    currentY = headerLineHeight + 3
+
+    if nbIssues == 0:
+        drawNbIssues(draw, currentX, currentY, nbIssues)
+        return
+
+
+    textSize = draw.textsize(issues[0].subject, font=fontIssues)
+
+    nbIssuesDisplayed = 0
     for issue in issues:
+        if nbIssuesDisplayed == BLOCK_NB_ISSUES_MAX:
+            break
         if isIssueToMe(issue):
             draw.text((currentX, currentY), str(issue.id), font=fontBoldIssues, fill=BLACK)
-
         else:
             draw.text((currentX, currentY), str(issue.id), font=fontIssues, fill=BLACK)
         currentX += 40
+        nbIssuesDisplayed += 1
         if (currentX == xPos + 80):
             currentY += textSize[1] + 5
             currentX = xPos
+
+    drawNbIssues(draw, currentX, currentY, nbIssues)
+
 
 
 def drawBottomText(draw, issuesNew, issuesWait):
