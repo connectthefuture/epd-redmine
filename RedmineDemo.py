@@ -228,7 +228,7 @@ def main(args):
                 transferToEpd(epd, image)
             else:
                 transferToScreen(image)
-            time.sleep(30)
+            time.sleep(60)
 
     except KeyboardInterrupt:  # Exit by typing CTRL-C
         print ("You hit CTRL-C")
