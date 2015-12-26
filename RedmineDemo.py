@@ -44,6 +44,10 @@ BLACK = 0
 SCREEN_SIZE_X = 264 - 1
 SCREEN_SIZE_Y = 176 - 1
 
+BLOCK_1_BOTTOM = SCREEN_SIZE_Y / 2 - 10
+BLOCK_2_TOP = SCREEN_SIZE_Y / 2
+
+
 fontTitles = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf", 12)
 fontIssues = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf", 11)
 fontBoldIssues = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf", 11)
@@ -107,19 +111,26 @@ def createImage(size):
 def drawColumnTitles(draw):
     draw.text((10, 1), 'Assigned', font=fontTitles, fill=BLACK)
     draw.text((91, 1), 'In progress', font=fontTitles, fill=BLACK)
-    draw.text((186, 1), 'Ready ...', font=fontTitles, fill=BLACK)
+    draw.text((200, 1), 'RID', font=fontTitles, fill=BLACK)
+
+    draw.text((30, BLOCK_2_TOP + 1), 'RIT', font=fontTitles, fill=BLACK)
+    draw.text((100, BLOCK_2_TOP + 1), 'Waiting', font=fontTitles, fill=BLACK)
+    draw.text((200, BLOCK_2_TOP + 1), 'New', font=fontTitles, fill=BLACK)
+
     return draw.textsize('Assigned', font=fontTitles)
 
 
 def drawLines(draw, headerLineHeight):
     #headers
     draw.line([(0, headerLineHeight), (SCREEN_SIZE_X, headerLineHeight)], fill=BLACK)
-
-    draw.line([(0, headerLineHeight), (SCREEN_SIZE_X, headerLineHeight)], fill=BLACK)
+    draw.line([(0, BLOCK_2_TOP + headerLineHeight), (SCREEN_SIZE_X, BLOCK_2_TOP + headerLineHeight)], fill=BLACK)
 
     #columns
-    draw.line([(88, 0), (88, 140)], fill=BLACK)
-    draw.line([(176, 0), (176, 140)], fill=BLACK)
+    draw.line([(88, 0), (88, BLOCK_1_BOTTOM)], fill=BLACK)
+    draw.line([(176, 0), (176, BLOCK_1_BOTTOM)], fill=BLACK)
+
+    draw.line([(88, BLOCK_2_TOP), (88, SCREEN_SIZE_Y)], fill=BLACK)
+    draw.line([(176, BLOCK_2_TOP), (176, SCREEN_SIZE_Y)], fill=BLACK)
 
 
 def drawMultiColumnContent(draw, headerLineHeight, xPos, issues):
