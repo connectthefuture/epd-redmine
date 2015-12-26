@@ -134,8 +134,8 @@ def drawLines(draw, headerLineHeight):
 
 def drawClock(draw):
     draw.text(
-        (SCREEN_SIZE_Y / 2 + 15, BLOCK_1_BOTTOM - 5),
-        time.strftime('%H:%M:%S'),
+        (SCREEN_SIZE_Y / 2 + 25, BLOCK_1_BOTTOM - 5),
+        time.strftime('%H:%M'),
         font=fontItalicIssues,
         fill=BLACK)
 
