@@ -43,7 +43,7 @@ BLACK = 0
 fontTitles = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf",12)
 fontIssues = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf",11)
 fontBoldIssues = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf",11)
-
+issues = []
 
 def extractUsableStatuses(redmine):
     hashStatuses = {}
@@ -66,12 +66,11 @@ def isIssueToMe(issue):
 
 
 def listIdsForStatus(redmine, projectName, statusId):
-    return redmine.issue.filter(project_id=projectName, status_id=statusId)
+    global issues
+    if not issues:
+        issues = redmine.issue.filter(project_id=projectName)
 
-
-def listIdsForQuery(redmine, projectName, queryId):
-    return redmine.issue.filter(project_id=projectName, query_id=queryId)
-
+    return [issue for issue in issues if issue.status.id == statusId]
 
 def transferToEpd(epd, image):
     # display image on the panel
@@ -181,9 +180,7 @@ def main(args):
 
     drawMultiColumnContent(draw, headerLineHeight, 5, listIdsForStatus(redmine, args[1], STATUS_ID_ASSIGNED))
     drawMultiColumnContent(draw, headerLineHeight, 95, listIdsForStatus(redmine, args[1], STATUS_ID_IN_PROGRESS))
-    drawMultiColumnContent(draw, headerLineHeight, 185,
-        listIdsForQuery(redmine, args[1], 69)
-    )
+    drawMultiColumnContent(draw, headerLineHeight, 185, listIdsForStatus(redmine, args[1], STATUS_ID_RID))
 
 #    transferToEpd(epd, image)
     transferToScreen(image)
