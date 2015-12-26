@@ -26,7 +26,7 @@ import textwrap
 import re
 from PIL import Image
 from PIL import ImageDraw, ImageFont
-from EPD import EPD
+#from EPD import EPD
 
 USER_ID_GAEL = 69
 
@@ -79,6 +79,8 @@ def transferToEpd(epd, image):
     epd.display(image)
     epd.update()
 
+def transferToScreen(image):
+    image.save('/tmp/redmine.jpg')
 
 def drawDots(draw):
 
@@ -182,7 +184,8 @@ def main(args):
         listIdsForQuery(redmine, args[1], 69)
     )
 
-    transferToEpd(epd, image)
+#    transferToEpd(epd, image)
+    transferToScreen(image)
 
     return 0
 
