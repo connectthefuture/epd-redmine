@@ -21,12 +21,20 @@
 #  MA 02110-1301, USA.
 
 from redmine import Redmine
+import sys
 import RedmineCredential
 import textwrap
 import re
 from PIL import Image
 from PIL import ImageDraw, ImageFont
-#from EPD import EPD
+
+IMAGE_PATH = '/tmp/redmine.jpg'
+EPD_FOUND = True
+try:
+    from EPD import EPD
+except ImportError:
+        sys.stderr.write("Hooops no EPD found. Auto fallback to '" + IMAGE_PATH + "'\n")
+        EPD_FOUND = False
 
 STATUS_ID_NEW = 1
 STATUS_ID_WAIT = 4
@@ -74,7 +82,7 @@ def transferToEpd(epd, image):
 
 
 def transferToScreen(image):  # monitor image with qiv --watch --fixed_zoom 150 /tmp/redmine.jpg
-    image.save('/tmp/redmine.jpg')
+    image.save(IMAGE_PATH)
 
 
 def drawDots(draw):
@@ -176,12 +184,13 @@ def main(args):
     redmine = Redmine(RedmineCredential.host, key=RedmineCredential.key,
         requests={'verify': RedmineCredential.request_verify})
 
-#    epd = EPD()
-#    epd.size
-#    print('panel = {p:s} {w:d} x {h:d}  version={v:s} COG={g:d}'.format(p=epd.panel, w=epd.width, h=epd.height, v=epd.version, g=epd.cog))
-    fakeSize = [SCREEN_SIZE_X + 1, SCREEN_SIZE_Y + 1]
+    imageSize = [SCREEN_SIZE_X + 1, SCREEN_SIZE_Y + 1]
+    if EPD_FOUND:
+        epd = EPD()
+        print('panel = {p:s} {w:d} x {h:d}  version={v:s} COG={g:d}'.format(p=epd.panel, w=epd.width, h=epd.height, v=epd.version, g=epd.cog))
+        imageSize = epd.size
 
-    image = createImage(fakeSize)
+    image = createImage(imageSize)
     # prepare for drawing
     draw = ImageDraw.Draw(image)
 
@@ -202,11 +211,12 @@ def main(args):
     drawMultiColumnContent(draw, headerLineHeightSecondScreen, 95, listIdsForStatus(redmine, projectName, STATUS_ID_WAIT))
     drawMultiColumnContent(draw, headerLineHeightSecondScreen, 185, listIdsForStatus(redmine, projectName, STATUS_ID_NEW))
 
-#    transferToEpd(epd, image)
-    transferToScreen(image)
+    if EPD_FOUND:
+        transferToEpd(epd, image)
+    else:
+        transferToScreen(image)
 
     return 0
 
 if __name__ == '__main__':
-    import sys
     sys.exit(main(sys.argv))
