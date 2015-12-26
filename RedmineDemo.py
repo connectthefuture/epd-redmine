@@ -92,9 +92,9 @@ def drawDots(draw):
     draw.point((263, 174), fill=BLACK)
 
 
-def createImage(epd):
+def createImage(size):
     # initially set all white background
-    return Image.new('1', epd.size, WHITE)
+    return Image.new('RGB', size, "white")
 
 
 def drawColumnTitles(draw):
@@ -154,11 +154,12 @@ def main(args):
 
     redmine = Redmine(RedmineCredential.host, key=RedmineCredential.key, requests={'verify': RedmineCredential.request_verify})
 
-    epd = EPD()
+#    epd = EPD()
+#    epd.size
+#    print('panel = {p:s} {w:d} x {h:d}  version={v:s} COG={g:d}'.format(p=epd.panel, w=epd.width, h=epd.height, v=epd.version, g=epd.cog))
+    fakeSize = [264, 176]
 
-    print('panel = {p:s} {w:d} x {h:d}  version={v:s} COG={g:d}'.format(p=epd.panel, w=epd.width, h=epd.height, v=epd.version, g=epd.cog))
-
-    image = createImage(epd)
+    image = createImage(fakeSize)
     # prepare for drawing
     draw = ImageDraw.Draw(image)
 
