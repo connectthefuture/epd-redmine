@@ -199,35 +199,40 @@ def main(args):
         print('panel = {p:s} {w:d} x {h:d}  version={v:s} COG={g:d}'.format(p=epd.panel, w=epd.width, h=epd.height, v=epd.version, g=epd.cog))
         imageSize = epd.size
 
-    while True:
-        image = createImage(imageSize)
-        # prepare for drawing
-        draw = ImageDraw.Draw(image)
+    try:
+        while True:
+            image = createImage(imageSize)
+            # prepare for drawing
+            draw = ImageDraw.Draw(image)
 
-        #drawDots(draw)
+            #drawDots(draw)
 
-        # column title: text
-        columnsTitleSize = drawColumnTitles(draw)
-        headerLineHeight = columnsTitleSize[1] + 2
+            # column title: text
+            columnsTitleSize = drawColumnTitles(draw)
+            headerLineHeight = columnsTitleSize[1] + 2
 
-        drawLines(draw, headerLineHeight)
+            drawLines(draw, headerLineHeight)
 
-        drawClock(draw)
+            drawClock(draw)
 
-        drawMultiColumnContent(draw, headerLineHeight, 5, listIdsForStatus(redmine, projectName, STATUS_ID_ASSIGNED))
-        drawMultiColumnContent(draw, headerLineHeight, 95, listIdsForStatus(redmine, projectName, STATUS_ID_IN_PROGRESS))
-        drawMultiColumnContent(draw, headerLineHeight, 185, listIdsForStatus(redmine, projectName, STATUS_ID_RID))
+            drawMultiColumnContent(draw, headerLineHeight, 5, listIdsForStatus(redmine, projectName, STATUS_ID_ASSIGNED))
+            drawMultiColumnContent(draw, headerLineHeight, 95, listIdsForStatus(redmine, projectName, STATUS_ID_IN_PROGRESS))
+            drawMultiColumnContent(draw, headerLineHeight, 185, listIdsForStatus(redmine, projectName, STATUS_ID_RID))
 
-        headerLineHeightSecondScreen = SCREEN_SIZE_Y / 2 + headerLineHeight
-        drawMultiColumnContent(draw, headerLineHeightSecondScreen, 5, listIdsForStatus(redmine, projectName, STATUS_ID_RIT))
-        drawMultiColumnContent(draw, headerLineHeightSecondScreen, 95, listIdsForStatus(redmine, projectName, STATUS_ID_WAIT))
-        drawMultiColumnContent(draw, headerLineHeightSecondScreen, 185, listIdsForStatus(redmine, projectName, STATUS_ID_NEW))
+            headerLineHeightSecondScreen = SCREEN_SIZE_Y / 2 + headerLineHeight
+            drawMultiColumnContent(draw, headerLineHeightSecondScreen, 5, listIdsForStatus(redmine, projectName, STATUS_ID_RIT))
+            drawMultiColumnContent(draw, headerLineHeightSecondScreen, 95, listIdsForStatus(redmine, projectName, STATUS_ID_WAIT))
+            drawMultiColumnContent(draw, headerLineHeightSecondScreen, 185, listIdsForStatus(redmine, projectName, STATUS_ID_NEW))
 
-        if EPD_FOUND:
-            transferToEpd(epd, image)
-        else:
-            transferToScreen(image)
-        time.sleep(30)
+            if EPD_FOUND:
+                transferToEpd(epd, image)
+            else:
+                transferToScreen(image)
+            time.sleep(30)
+
+    except KeyboardInterrupt:  # Exit by typing CTRL-C
+        print ("You hit CTRL-C")
+
     return 0
 
 if __name__ == '__main__':
