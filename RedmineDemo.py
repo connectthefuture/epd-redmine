@@ -154,7 +154,8 @@ def main(args):
         sys.stderr.write("Please provide project name !\n")
         return 1
 
-    redmine = Redmine(RedmineCredential.host, key=RedmineCredential.key, requests={'verify': RedmineCredential.request_verify})
+    redmine = Redmine(RedmineCredential.host, key=RedmineCredential.key,
+        requests={'verify': RedmineCredential.request_verify})
 
 #    epd = EPD()
 #    epd.size
@@ -165,7 +166,7 @@ def main(args):
     # prepare for drawing
     draw = ImageDraw.Draw(image)
 
-    drawDots(draw)
+    #drawDots(draw)
 
     # column title: text
     columnsTitleSize = drawColumnTitles(draw)
