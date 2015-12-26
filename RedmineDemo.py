@@ -133,7 +133,7 @@ def drawClock(draw):
         (SCREEN_SIZE_Y / 2 + 15, BLOCK_1_BOTTOM - 5),
         time.strftime('%H:%M:%S'),
         font=fontItalicIssues,
-        fill='grey')
+        fill=BLACK)
 
 
 def drawNbIssues(draw, currentX, currentY, nbIssues):
