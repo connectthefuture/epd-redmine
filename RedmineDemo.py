@@ -40,9 +40,13 @@ STATUS_ID_ASSIGNED = 12
 
 WHITE = 1
 BLACK = 0
-fontTitles = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf",12)
-fontIssues = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf",11)
-fontBoldIssues = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf",11)
+
+SCREEN_SIZE_X = 264 - 1
+SCREEN_SIZE_Y = 176 - 1
+
+fontTitles = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf", 12)
+fontIssues = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf", 11)
+fontBoldIssues = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf", 11)
 issues = []
 
 def extractUsableStatuses(redmine):
@@ -78,19 +82,21 @@ def transferToEpd(epd, image):
     epd.display(image)
     epd.update()
 
-def transferToScreen(image):
+
+def transferToScreen(image):  # monitor image with qiv --watch --fixed_zoom 150 /tmp/redmine.jpg
     image.save('/tmp/redmine.jpg')
+
 
 def drawDots(draw):
 
     # three pixels in bottom left corner
-    draw.point((0, 175), fill=BLACK)
-    draw.point((1, 175), fill=BLACK)
-    draw.point((0, 174), fill=BLACK)
+    draw.point((0, SCREEN_SIZE_Y), fill=BLACK)
+    draw.point((1, SCREEN_SIZE_Y), fill=BLACK)
+    draw.point((0, SCREEN_SIZE_Y - 1), fill=BLACK)
     # three pixels in bottom right corner
-    draw.point((263, 175), fill=BLACK)
-    draw.point((262, 175), fill=BLACK)
-    draw.point((263, 174), fill=BLACK)
+    draw.point((SCREEN_SIZE_X, SCREEN_SIZE_Y), fill=BLACK)
+    draw.point((SCREEN_SIZE_X - 1, SCREEN_SIZE_Y), fill=BLACK)
+    draw.point((SCREEN_SIZE_X, SCREEN_SIZE_Y - 1), fill=BLACK)
 
 
 def createImage(size):
@@ -107,7 +113,9 @@ def drawColumnTitles(draw):
 
 def drawLines(draw, headerLineHeight):
     #headers
-    draw.line([(0, headerLineHeight), (263, headerLineHeight)], fill=BLACK)
+    draw.line([(0, headerLineHeight), (SCREEN_SIZE_X, headerLineHeight)], fill=BLACK)
+
+    draw.line([(0, headerLineHeight), (SCREEN_SIZE_X, headerLineHeight)], fill=BLACK)
 
     #columns
     draw.line([(88, 0), (88, 140)], fill=BLACK)
@@ -159,7 +167,7 @@ def main(args):
 #    epd = EPD()
 #    epd.size
 #    print('panel = {p:s} {w:d} x {h:d}  version={v:s} COG={g:d}'.format(p=epd.panel, w=epd.width, h=epd.height, v=epd.version, g=epd.cog))
-    fakeSize = [264, 176]
+    fakeSize = [SCREEN_SIZE_X + 1, SCREEN_SIZE_Y + 1]
 
     image = createImage(fakeSize)
     # prepare for drawing
