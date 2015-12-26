@@ -75,11 +75,15 @@ def listIdsForStatus(redmine, projectName, statusId):
     return [issue for issue in issues if issue.status.id == statusId]
 
 
-def transferToEpd(epd, image):
+def transferToEpd(epd, image, full):
     # display image on the panel
-    epd.clear()
     epd.display(image)
-    epd.update()
+
+    if full:
+        epd.clear()
+        epd.update()
+    else:
+        epd.partial_update()
 
 
 def transferToScreen(image):  # monitor image with qiv --watch --fixed_zoom 150 /tmp/redmine.jpg
@@ -199,6 +203,7 @@ def main(args):
         print('panel = {p:s} {w:d} x {h:d}  version={v:s} COG={g:d}'.format(p=epd.panel, w=epd.width, h=epd.height, v=epd.version, g=epd.cog))
         imageSize = epd.size
 
+    counter = 0;
     try:
         while True:
             image = createImage(imageSize)
@@ -225,10 +230,11 @@ def main(args):
             drawMultiColumnContent(draw, headerLineHeightSecondScreen, 185, listIdsForStatus(redmine, projectName, STATUS_ID_NEW))
 
             if EPD_FOUND:
-                transferToEpd(epd, image)
+                transferToEpd(epd, image, counter % 300 == 0)
             else:
                 transferToScreen(image)
             time.sleep(60)
+            counter += 60
 
     except KeyboardInterrupt:  # Exit by typing CTRL-C
         print ("You hit CTRL-C")
