@@ -205,6 +205,9 @@ def main(args):
     counter = 0
     try:
         while True:
+            global issues
+            issues = []
+
             image = createImage(imageSize)
             # prepare for drawing
             draw = ImageDraw.Draw(image)
