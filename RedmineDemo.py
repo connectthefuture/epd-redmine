@@ -31,11 +31,7 @@ from PIL import ImageDraw, ImageFont
 
 IMAGE_PATH = '/tmp/redmine.jpg'
 EPD_FOUND = True
-try:
-    from EPD import EPD
-except ImportError:
-        sys.stderr.write("Hooops no EPD found. Auto fallback to '" + IMAGE_PATH + "'\n")
-        EPD_FOUND = False
+from EPD import EPD
 
 STATUS_ID_NEW = 1
 STATUS_ID_WAIT = 4
@@ -198,12 +194,15 @@ def main(args):
         requests={'verify': RedmineCredential.request_verify})
 
     imageSize = [SCREEN_SIZE_X + 1, SCREEN_SIZE_Y + 1]
-    if EPD_FOUND:
+    try:
         epd = EPD()
         print('panel = {p:s} {w:d} x {h:d}  version={v:s} COG={g:d}'.format(p=epd.panel, w=epd.width, h=epd.height, v=epd.version, g=epd.cog))
         imageSize = epd.size
+    except IOError:
+        sys.stderr.write("Hooops no EPD found. Auto fallback to '" + IMAGE_PATH + "'\n")
+        EPD_FOUND = False
 
-    counter = 0;
+    counter = 0
     try:
         while True:
             image = createImage(imageSize)
