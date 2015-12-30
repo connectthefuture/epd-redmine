@@ -30,7 +30,6 @@ from PIL import Image
 from PIL import ImageDraw, ImageFont
 
 IMAGE_PATH = '/tmp/redmine.jpg'
-EPD_FOUND = True
 from EPD import EPD
 
 STATUS_ID_NEW = 1
@@ -184,6 +183,7 @@ def formatIssues(label, issues):
 
 
 def main(args):
+    epdFound = True
     if len(args) != 2:
         sys.stderr.write("Please provide project name !\n")
         return 1
@@ -200,7 +200,7 @@ def main(args):
         imageSize = epd.size
     except IOError:
         sys.stderr.write("Hooops no EPD found. Auto fallback to '" + IMAGE_PATH + "'\n")
-        EPD_FOUND = False
+        epdFound = False
 
     counter = 0
     try:
@@ -231,7 +231,7 @@ def main(args):
             drawMultiColumnContent(draw, headerLineHeightSecondScreen, 95, listIdsForStatus(redmine, projectName, STATUS_ID_WAIT))
             drawMultiColumnContent(draw, headerLineHeightSecondScreen, 185, listIdsForStatus(redmine, projectName, STATUS_ID_NEW))
 
-            if EPD_FOUND:
+            if epdFound:
                 transferToEpd(epd, image, counter % 300 == 0)
             else:
                 transferToScreen(image)
