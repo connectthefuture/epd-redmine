@@ -242,19 +242,32 @@ def main(args):
             columnsTitleSize = drawColumnTitles(draw)
             headerLineHeight = columnsTitleSize[1] + 2
 
+            ipAddress = getIpAddress()
+            issuesAssigned = issuesInProgress = issuesRid = issuesRit = issuesWait = issuesNew = []
+
+            try:
+                issuesAssigned = listIdsForStatus(redmine, projectName, STATUS_ID_ASSIGNED)
+                issuesInProgress = listIdsForStatus(redmine, projectName, STATUS_ID_IN_PROGRESS)
+                issuesRid = listIdsForStatus(redmine, projectName, STATUS_ID_RID)
+                issuesRit = listIdsForStatus(redmine, projectName, STATUS_ID_RIT)
+                issuesWait = listIdsForStatus(redmine, projectName, STATUS_ID_WAIT)
+                issuesNew = listIdsForStatus(redmine, projectName, STATUS_ID_NEW)
+            except Exception as e:
+                print e
+
             drawLines(draw, headerLineHeight)
 
-            drawIpAddress(draw, getIpAddress())
+            drawIpAddress(draw, ipAddress)
             drawClock(draw)
 
-            drawMultiColumnContent(draw, headerLineHeight, 5, listIdsForStatus(redmine, projectName, STATUS_ID_ASSIGNED))
-            drawMultiColumnContent(draw, headerLineHeight, 95, listIdsForStatus(redmine, projectName, STATUS_ID_IN_PROGRESS))
-            drawMultiColumnContent(draw, headerLineHeight, 185, listIdsForStatus(redmine, projectName, STATUS_ID_RID))
+            drawMultiColumnContent(draw, headerLineHeight, 5, issuesAssigned)
+            drawMultiColumnContent(draw, headerLineHeight, 95, issuesInProgress)
+            drawMultiColumnContent(draw, headerLineHeight, 185, issuesRid)
 
             headerLineHeightSecondScreen = SCREEN_SIZE_Y / 2 + headerLineHeight
-            drawMultiColumnContent(draw, headerLineHeightSecondScreen, 5, listIdsForStatus(redmine, projectName, STATUS_ID_RIT))
-            drawMultiColumnContent(draw, headerLineHeightSecondScreen, 95, listIdsForStatus(redmine, projectName, STATUS_ID_WAIT))
-            drawMultiColumnContent(draw, headerLineHeightSecondScreen, 185, listIdsForStatus(redmine, projectName, STATUS_ID_NEW))
+            drawMultiColumnContent(draw, headerLineHeightSecondScreen, 5, issuesRit)
+            drawMultiColumnContent(draw, headerLineHeightSecondScreen, 95, issuesWait)
+            drawMultiColumnContent(draw, headerLineHeightSecondScreen, 185, issuesNew)
 
             if epdFound:
                 transferToEpd(epd, image, counter % 300 == 0)
