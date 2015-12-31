@@ -26,6 +26,7 @@ import RedmineCredential
 import textwrap
 import re
 import time
+import netifaces
 from PIL import Image
 from PIL import ImageDraw, ImageFont
 
@@ -81,6 +82,14 @@ def transferToEpd(epd, image, full):
     else:
         epd.partial_update()
 
+
+def getIpAddress():
+    defaultGateway = netifaces.gateways()['default']
+    ipv4Gateway = defaultGateway[netifaces.AF_INET]
+    ipv4InterfaceName = ipv4Gateway[1]
+    interface = netifaces.ifaddresses(ipv4InterfaceName)
+    ipv4Interface = interface[netifaces.AF_INET]
+    return ipv4Interface[0]['addr']
 
 def transferToScreen(image):  # monitor image with qiv --watch --fixed_zoom 150 /tmp/redmine.jpg
     image.save(IMAGE_PATH)
