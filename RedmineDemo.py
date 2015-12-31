@@ -147,6 +147,15 @@ def drawClock(draw):
         fill=BLACK)
 
 
+def drawIpAddress(draw, ipAddress):
+    textSize = draw.textsize(ipAddress, font=fontStatus)
+    draw.text(
+        (SCREEN_SIZE_X - textSize[0] - 2, BLOCK_1_BOTTOM),
+        ipAddress,
+        font=fontStatus,
+        fill=BLACK)
+
+
 def drawNbIssues(draw, currentX, currentY, nbIssues):
     draw.text((currentX, currentY), '(' + str(nbIssues) + ')', font=fontItalicIssues, fill=BLACK)
 
@@ -232,6 +241,7 @@ def main(args):
 
             drawLines(draw, headerLineHeight)
 
+            drawIpAddress(draw, getIpAddress())
             drawClock(draw)
 
             drawMultiColumnContent(draw, headerLineHeight, 5, listIdsForStatus(redmine, projectName, STATUS_ID_ASSIGNED))
