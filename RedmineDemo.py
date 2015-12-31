@@ -54,6 +54,7 @@ BLOCK_NB_ISSUES_MAX = 7
 fontTitles = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf", 12)
 fontIssues = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf", 11)
 fontItalicIssues = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Oblique.ttf", 11)
+fontStatus = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Oblique.ttf", 9)
 fontBoldIssues = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf", 11)
 issues = []
 
@@ -128,10 +129,12 @@ def drawLines(draw, headerLineHeight):
 
 
 def drawClock(draw):
+    clockText = time.strftime('%H:%M')
+    textSize = draw.textsize(clockText, font=fontStatus)
     draw.text(
-        (SCREEN_SIZE_Y / 2 + 25, BLOCK_1_BOTTOM - 5),
-        time.strftime('%H:%M'),
-        font=fontItalicIssues,
+        (textSize[0], BLOCK_1_BOTTOM),
+        clockText,
+        font=fontStatus,
         fill=BLACK)
 
 
