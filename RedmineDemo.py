@@ -85,6 +85,9 @@ def transferToEpd(epd, image, full):
 
 def getIpAddress():
     defaultGateway = netifaces.gateways()['default']
+    if netifaces.AF_INET not in defaultGateway:
+        return 'not connected'
+
     ipv4Gateway = defaultGateway[netifaces.AF_INET]
     ipv4InterfaceName = ipv4Gateway[1]
     interface = netifaces.ifaddresses(ipv4InterfaceName)
