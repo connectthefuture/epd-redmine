@@ -1,0 +1,14 @@
+[Unit]
+Description=Launch Redmine on EPD screen
+Wants=network-online.target epd-fuse.service
+After=network-online.target epd-fuse.service
+
+[Service]
+ExecStart=/usr/bin/python /home/eink/redmine/RedmineDemo.py [ProjectName]
+ExecStopPost=/usr/bin/python /home/eink/redmine/ImageDisplay.py /home/eink/redmine/panda.jpg
+
+User=eink
+Group=eink
+
+[Install]
+WantedBy=multi-user.target
