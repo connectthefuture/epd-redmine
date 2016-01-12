@@ -40,7 +40,7 @@ def display_file(epd, file_name):
     rs = image.resize((epd.width, epd.height))
     bw = rs.convert("1", dither=Image.FLOYDSTEINBERG)
 
-    epd.display(bw)
+    epd.display(bw.rotate(180))
     epd.update()
 
 # main

@@ -74,7 +74,7 @@ def listIdsForStatus(redmine, projectName, statusId):
 
 def transferToEpd(epd, image, full):
     # display image on the panel
-    epd.display(image)
+    epd.display(image.rotate(180))
 
     if full:
         epd.clear()
