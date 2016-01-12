@@ -270,7 +270,7 @@ def main(args):
             drawMultiColumnContent(draw, headerLineHeightSecondScreen, 185, issuesNew)
 
             if epdFound:
-                transferToEpd(epd, image, counter % 300 == 0)
+                transferToEpd(epd, image, counter % (60 * 15) == 0)
             else:
                 transferToScreen(image)
             time.sleep(60)
