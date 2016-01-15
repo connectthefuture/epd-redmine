@@ -39,6 +39,7 @@ STATUS_ID_IN_PROGRESS = 2
 STATUS_ID_RID = 9
 STATUS_ID_RIT = 3
 STATUS_ID_RFV = 10
+STATUS_ID_GFP = 11
 STATUS_ID_ASSIGNED = 12
 
 WHITE = 1
@@ -121,8 +122,8 @@ def drawColumnTitles(draw):
     draw.text((200, 1), 'RID', font=fontTitles, fill=BLACK)
 
     draw.text((30, BLOCK_2_TOP + 1), 'RIT', font=fontTitles, fill=BLACK)
-    draw.text((100, BLOCK_2_TOP + 1), 'Waiting', font=fontTitles, fill=BLACK)
-    draw.text((200, BLOCK_2_TOP + 1), 'New', font=fontTitles, fill=BLACK)
+    draw.text((120, BLOCK_2_TOP + 1), 'GFP', font=fontTitles, fill=BLACK)
+    draw.text((200, BLOCK_2_TOP + 1), 'Wait', font=fontTitles, fill=BLACK)
 
     return draw.textsize('Assigned', font=fontTitles)
 
@@ -243,7 +244,7 @@ def main(args):
             headerLineHeight = columnsTitleSize[1] + 2
 
             ipAddress = getIpAddress()
-            issuesAssigned = issuesInProgress = issuesRid = issuesRit = issuesWait = issuesNew = []
+            issuesAssigned = issuesInProgress = issuesRid = issuesRit = issuesWait = issuesGfp = []
 
             try:
                 issuesAssigned = listIdsForStatus(redmine, projectName, STATUS_ID_ASSIGNED)
@@ -251,7 +252,7 @@ def main(args):
                 issuesRid = listIdsForStatus(redmine, projectName, STATUS_ID_RID)
                 issuesRit = listIdsForStatus(redmine, projectName, STATUS_ID_RIT)
                 issuesWait = listIdsForStatus(redmine, projectName, STATUS_ID_WAIT)
-                issuesNew = listIdsForStatus(redmine, projectName, STATUS_ID_NEW)
+                issuesGfp = listIdsForStatus(redmine, projectName, STATUS_ID_GFP)
             except Exception as e:
                 print e
 
@@ -266,8 +267,8 @@ def main(args):
 
             headerLineHeightSecondScreen = SCREEN_SIZE_Y / 2 + headerLineHeight
             drawMultiColumnContent(draw, headerLineHeightSecondScreen, 5, issuesRit)
-            drawMultiColumnContent(draw, headerLineHeightSecondScreen, 95, issuesWait)
-            drawMultiColumnContent(draw, headerLineHeightSecondScreen, 185, issuesNew)
+            drawMultiColumnContent(draw, headerLineHeightSecondScreen, 95, issuesGfp)
+            drawMultiColumnContent(draw, headerLineHeightSecondScreen, 185, issuesWait)
 
             if epdFound:
                 transferToEpd(epd, image, counter % (60 * 15) == 0)
