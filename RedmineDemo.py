@@ -114,13 +114,12 @@ def createImage(size):
 
 
 def drawColumnTitles(draw):
-    draw.text((10, 1), 'Assigned', font=fontTitles, fill=BLACK)
+    draw.text((25, 1), 'New', font=fontTitles, fill=BLACK)
     draw.text((91, 1), 'In progress', font=fontTitles, fill=BLACK)
-    draw.text((200, 1), 'RID', font=fontTitles, fill=BLACK)
+    draw.text((190, 1), 'Resolved', font=fontTitles, fill=BLACK)
 
-    draw.text((30, BLOCK_2_TOP + 1), 'RIT', font=fontTitles, fill=BLACK)
-    draw.text((120, BLOCK_2_TOP + 1), 'GFP', font=fontTitles, fill=BLACK)
-    draw.text((200, BLOCK_2_TOP + 1), 'Wait', font=fontTitles, fill=BLACK)
+    draw.text((5, BLOCK_2_TOP + 1), 'Need Feed', font=fontTitles, fill=BLACK)
+    draw.text((110, BLOCK_2_TOP + 1), 'Closed', font=fontTitles, fill=BLACK)
 
     return draw.textsize('Assigned', font=fontTitles)
 
