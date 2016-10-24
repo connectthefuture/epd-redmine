@@ -34,13 +34,10 @@ IMAGE_PATH = '/tmp/redmine.jpg'
 from EPD import EPD
 
 STATUS_ID_NEW = 1
-STATUS_ID_WAIT = 4
 STATUS_ID_IN_PROGRESS = 2
-STATUS_ID_RID = 9
-STATUS_ID_RIT = 3
-STATUS_ID_RFV = 10
-STATUS_ID_GFP = 11
-STATUS_ID_ASSIGNED = 12
+STATUS_ID_RESOLVED = 3
+STATUS_ID_NEED_FEED = 4
+STATUS_ID_CLOSED = 5
 
 WHITE = 1
 BLACK = 0
@@ -244,15 +241,14 @@ def main(args):
             headerLineHeight = columnsTitleSize[1] + 2
 
             ipAddress = getIpAddress()
-            issuesAssigned = issuesInProgress = issuesRid = issuesRit = issuesWait = issuesGfp = []
+            issuesNew = issuesInProgress = issuesResolved = issuesNeedFeed = issuesClosed = []
 
             try:
-                issuesAssigned = listIdsForStatus(redmine, projectName, STATUS_ID_ASSIGNED)
+                issuesNew = listIdsForStatus(redmine, projectName, STATUS_ID_NEW)
                 issuesInProgress = listIdsForStatus(redmine, projectName, STATUS_ID_IN_PROGRESS)
-                issuesRid = listIdsForStatus(redmine, projectName, STATUS_ID_RID)
-                issuesRit = listIdsForStatus(redmine, projectName, STATUS_ID_RIT)
-                issuesWait = listIdsForStatus(redmine, projectName, STATUS_ID_WAIT)
-                issuesGfp = listIdsForStatus(redmine, projectName, STATUS_ID_GFP)
+                issuesResolved = listIdsForStatus(redmine, projectName, STATUS_ID_RESOLVED)
+                issuesNeedFeed = listIdsForStatus(redmine, projectName, STATUS_ID_NEED_FEED)
+                issuesClosed = listIdsForStatus(redmine, projectName, STATUS_ID_CLOSED)
             except Exception as e:
                 print e
 
@@ -261,14 +257,14 @@ def main(args):
             drawIpAddress(draw, ipAddress)
             drawClock(draw)
 
-            drawMultiColumnContent(draw, headerLineHeight, 5, issuesAssigned)
+            drawMultiColumnContent(draw, headerLineHeight, 5, issuesNew)
             drawMultiColumnContent(draw, headerLineHeight, 95, issuesInProgress)
-            drawMultiColumnContent(draw, headerLineHeight, 185, issuesRid)
+            drawMultiColumnContent(draw, headerLineHeight, 185, issuesResolved)
 
             headerLineHeightSecondScreen = SCREEN_SIZE_Y / 2 + headerLineHeight
-            drawMultiColumnContent(draw, headerLineHeightSecondScreen, 5, issuesRit)
-            drawMultiColumnContent(draw, headerLineHeightSecondScreen, 95, issuesGfp)
-            drawMultiColumnContent(draw, headerLineHeightSecondScreen, 185, issuesWait)
+            drawMultiColumnContent(draw, headerLineHeightSecondScreen, 5, issuesNeedFeed)
+            drawMultiColumnContent(draw, headerLineHeightSecondScreen, 95, issuesClosed)
+#            drawMultiColumnContent(draw, headerLineHeightSecondScreen, 185, issuesWait)
 
             if epdFound:
                 transferToEpd(epd, image, counter % (60 * 15) == 0)
