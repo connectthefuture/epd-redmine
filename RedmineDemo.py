@@ -141,7 +141,7 @@ def drawClock(draw):
     clockText = time.strftime('%H:%M')
     textSize = draw.textsize(clockText, font=fontStatus)
     draw.text(
-        (textSize[0], BLOCK_1_BOTTOM),
+        (SCREEN_SIZE_X - textSize[0] - 30, BLOCK_2_TOP + 50),
         clockText,
         font=fontStatus,
         fill=BLACK)
