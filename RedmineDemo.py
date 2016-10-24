@@ -150,7 +150,7 @@ def drawClock(draw):
 def drawIpAddress(draw, ipAddress):
     textSize = draw.textsize(ipAddress, font=fontStatus)
     draw.text(
-        (SCREEN_SIZE_X - textSize[0] - 2, BLOCK_1_BOTTOM),
+        (SCREEN_SIZE_X - textSize[0] - 20, BLOCK_2_TOP + 30),
         ipAddress,
         font=fontStatus,
         fill=BLACK)
